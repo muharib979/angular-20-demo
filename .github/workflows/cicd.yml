@@ -42,9 +42,12 @@ jobs:
           name: angular-dist
           path: dist/
 
-      - name: Deploy to Server
+      - name: Deploy to Test Folder
         run: |
-          echo "🚀 Deploying Angular App..."
-          sudo rm -rf /var/www/html/*
-          sudo cp -r dist/* /var/www/html/
-          echo "✅ Deployment finished!"
+           echo "🚀 Deploying Angular App..."
+           mkdir -p /tmp/html-test
+           rm -rf /tmp/html-test/*
+           cp -r dist/* /tmp/html-test/
+           echo "✅ Deployment finished!"
+           echo "📂 Files in /tmp/html-test:"
+           ls -la /tmp/html-test
