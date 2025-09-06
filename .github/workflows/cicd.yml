@@ -44,10 +44,10 @@ jobs:
 
       - name: Deploy to Test Folder
         run: |
-           echo "🚀 Deploying Angular App..."
-           mkdir -p /tmp/html-test
-           rm -rf /tmp/html-test/*
-           cp -r dist/* /tmp/html-test/
-           echo "✅ Deployment finished!"
-           echo "📂 Files in /tmp/html-test:"
-           ls -la /tmp/html-test
+            echo "🚀 Deploying Angular App..."
+            mkdir -p /tmp/html-test
+            rm -rf /tmp/html-test/*
+            cp -r dist/angular-20-demo/* /tmp/html-test/
+            echo "✅ Deployment finished!"
+            echo "📂 Files in /tmp/html-test:"
+            ls -la /tmp/html-test
