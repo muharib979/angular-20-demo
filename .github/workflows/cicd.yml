@@ -23,14 +23,14 @@ jobs:
       - name: Build Angular App
 
         run: |
-              rm -rf dist/angular-20-demo
+              rm -rf dist/angular-20-demo/browser
               npm run build -- --configuration=production
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4   # ✅ v4 এ আপডেট
         with:
           name: angular-dist
-          path: dist/angular-20-demo
+          path: dist/angular-20-demo/browser
 
   deploy:
     needs: build
@@ -43,14 +43,14 @@ jobs:
         uses: actions/download-artifact@v4   # ✅ v4 এ আপডেট
         with:
           name: angular-dist
-          path: dist/angular-20-demo
+          path: dist/angular-20-demo/browser
 
       - name: Deploy to Test Folder
         run: |
             echo "🚀 Deploying Angular App..."
             mkdir -p /tmp/html-test
             rm -rf /tmp/html-test/*
-            cp -r dist/angular-20-demo/* /tmp/html-test/
+            cp -r dist/angular-20-demo/browser/* /tmp/html-test/
             echo "✅ Deployment finished!"
             echo "📂 Files in /tmp/html-test:"
             ls -la /tmp/html-test
