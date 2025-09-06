@@ -40,7 +40,7 @@ jobs:
         uses: actions/download-artifact@v4   # ✅ v4 এ আপডেট
         with:
           name: angular-dist
-          path: dist/
+          path: dist/angular-20-demo
 
       - name: Deploy to Test Folder
         run: |
