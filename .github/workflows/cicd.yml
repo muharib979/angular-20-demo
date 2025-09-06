@@ -23,7 +23,7 @@ jobs:
       - name: Build Angular App
 
         run: |
-              rm -rf dist/
+              rm -rf dist/angular-20-demo
               npm run build -- --configuration=production
 
       - name: Upload Artifact
