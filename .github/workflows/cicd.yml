@@ -1,4 +1,4 @@
-name: Angular CICD Pipelines
+name: CICD Pipelines
 
 on: [push]
 
@@ -7,34 +7,49 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '22.19.0'
 
       - name: Install Dependencies
         run: npm install
 
       - name: Run Tests
-        run: npm run test -- --watch=false --browsers=ChromeHeadless || true
-        
+        run: npm run check
+
 
   Deploy:
     needs: test
     runs-on: self-hosted
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
 
       - name: Install Dependencies
         run: npm install
 
-      - name: Build Angular App
-        run: npm run build -- --configuration=production
-
-      - name: Install PM2
+      - name: Deploy with PM2
         run: |
-          npm install -g pm2
-          pm2 update
+          echo "🔄 Listing files"
+          ls -a
+
+          echo "🔍 Checking pm2 status"
+          pm2 status || true
+
+          echo "🗑️ Deleting old process (if exists)"
+          pm2 delete "node-app" || true
+
+          echo "🚀 Starting app with PM2"
+          pm2 start "npm start" --name="node-app"
+
+          echo "💾 Saving PM2 process list"
+          pm2 save
