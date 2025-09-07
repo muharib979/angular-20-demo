@@ -10,56 +10,49 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4   # ✅ v4 এ আপডেট করা হলো
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.12'
+          node-version: '22.19.0'
 
       - name: Install Dependencies
         run: npm install
 
       - name: Build Angular App
-
         run: |
-              rm -rf dist/angular-20-demo/browser
-              npm run build -- --configuration=production
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4   # ✅ v4 এ আপডেট
-        with:
-          name: angular-dist
-          path: dist/angular-20-demo/browser
+          rm -rf dist/angular-20-demo/browser
+          npm run build -- --configuration=production
 
   deploy:
+    runs-on: self-hosted
     needs: build
-    runs-on: self-hosted   # এখানে তোমার সার্ভারের self-hosted runner চলবে
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4   # ✅ v4 এ আপডেট
+        uses: actions/checkout@v4
 
-      - name: Download Artifact
-        uses: actions/download-artifact@v4   # ✅ v4 এ আপডেট
-        with:
-          name: angular-dist
-          path: dist/angular-20-demo/browser
+      - name: Install dependencies
+        run: npm install
 
-      - name: Deploy to Test Folder
+      - name: Build Angular
+        run: ng build --configuration=production
+
+      - name: Deploy to /var/www/html
         run: |
-         echo "🚀 Deploying Angular App..."
-         sudo mkdir -p /var/www/html
-         sudo rm -rf /var/www/html/*
-         sudo cp -r dist/angular-20-demo/browser/* /var/www/html/
-         sudo chown -R ubuntu:ubuntu /var/www/html/
-         sudo chmod -R 755 /var/www/html/
-         echo "✅ Deployment finished!"
-         echo "📂 Files in /var/www/html:"
-         ls -la /var/www/html
+          echo "🚀 Deploying Angular App..."
+          sudo mkdir -p /var/www/html
+          sudo rm -rf /var/www/html/*
+          sudo cp -r dist/angular-20-demo/browser/* /var/www/html/
+          sudo chown -R ubuntu:ubuntu /var/www/html/
+          sudo chmod -R 755 /var/www/html/
+          echo "✅ Deployment finished!"
+          echo "📂 Files in /var/www/html:"
+          ls -la /var/www/html
 
-         - name: Restart Serve (npx serve)
-         run: |
+      - name: Restart Serve (npx serve)
+        run: |
           echo "🔄 Restarting serve process..."
           pkill -f "npx serve" || true
-          nohup npx serve -s /var/www/html -l 80 --no-clipboard > serve.log 2>&1 &
+          nohup npx serve -s /var/www/html -l 4200 --no-clipboard > serve.log 2>&1 &
           echo "✅ Serve restarted"
