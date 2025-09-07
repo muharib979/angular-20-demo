@@ -65,7 +65,14 @@ jobs:
 
       - name: Restart Angular Dev Server
         run: |
-             pm2 restart angular-app || pm2 start "npx ng serve --host 0.0.0.0 --port 4200" --name angular-app
+             pm2 describe angular-app > /dev/null
+             if [ $? -eq 0 ]; then
+             echo "♻️ Restarting Angular App..."
+             pm2 restart angular-app --update-env
+             else
+             echo "🚀 Starting Angular App..."
+             pm2 start "npx ng serve --host 0.0.0.0 --port 4200" --name angular-app
+             fi
 
 
 
