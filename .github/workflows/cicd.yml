@@ -16,9 +16,11 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+      - name: Run Unit Tests
+        run: npm test
 
-      - name: Run Tests
-        run: npm run check
+      - name: Build Angular App
+        run: npm run build -- --configuration=production
 
 
   Deploy:
