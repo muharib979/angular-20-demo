@@ -1,54 +1,58 @@
-name: Angular CI/CD
+name: CICD Pipelines
 
 on:
   push:
     branches:
-      - main   
+      - main   # শুধু main branch এ push হলে trigger হবে
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.19.0'
+          node-version: '22'
 
       - name: Install Dependencies
         run: npm install
 
-      - name: Build Angular App
-        run: |
-          rm -rf dist/angular-20-demo/browser
-          npm run build -- --configuration=production
+      - name: Run Tests
+        run: npm run check
 
   deploy:
+    needs: test
     runs-on: self-hosted
-    needs: build
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build Angular on self-hosted
-        run: ng build --configuration=production
+      - name: Install Dependencies
+        run: npm install --production
 
-      - name: Deploy to /var/www/html
+      - name: Build Angular App
+        run: |
+          echo "🏗️ Building Angular App..."
+          rm -rf dist/angular-20-demo/browser
+          npm run build -- --configuration=production
+          echo "✅ Build Finished!"
+
+      - name: Deploy Angular with PM2
         run: |
           echo "🚀 Deploying Angular App..."
-          sudo mkdir -p /var/www/html
-          sudo rm -rf /var/www/html/*
-          sudo cp -r dist/angular-20-demo/browser/* /var/www/html/
-          sudo chown -R ubuntu:ubuntu /var/www/html/
-          sudo chmod -R 755 /var/www/html/
-          echo "✅ Deployment finished!"
-          ls -la /var/www/html
+          pm2 status
 
-      - name: Restart Serve (npx serve)
-        run: |
-          echo "🔄 Restarting serve process..."
-          pkill -f "npx serve" || true
-          nohup npx serve -s /var/www/html -l 4200 --no-clipboard > serve.log 2>&1 &
-          echo "✅ Serve restarted"
+          # Stop old process if exists
+          pm2 delete angular-app || true
+
+          # Serve the built Angular app on port 80
+          pm2 start "npx serve -s dist/angular-20-demo/browser -l 80" --name angular-app
+
+          # Save PM2 process list
+          pm2 save
+
+          echo "✅ Deployment finished!"
