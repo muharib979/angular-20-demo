@@ -32,6 +32,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Build Angular on self-hosted
+        run: ng build --configuration=production
+
       - name: Deploy to /var/www/html
         run: |
           echo "🚀 Deploying Angular App..."
@@ -41,7 +44,6 @@ jobs:
           sudo chown -R ubuntu:ubuntu /var/www/html/
           sudo chmod -R 755 /var/www/html/
           echo "✅ Deployment finished!"
-          echo "📂 Files in /var/www/html:"
           ls -la /var/www/html
 
       - name: Restart Serve (npx serve)
