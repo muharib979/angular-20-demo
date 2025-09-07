@@ -55,3 +55,9 @@ jobs:
             echo "📂 Files in /tmp/html-test:"
             ls -la /tmp/html-test
 
+      - name: Restart Angular Dev Server
+        run: |
+             pm2 restart angular-app || pm2 start "npx ng serve --host 0.0.0.0 --port 4200" --name angular-app
+
+
+
