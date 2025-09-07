@@ -1,16 +1,13 @@
 name: CICD Pipelines
 
-on:
-  push:
-    branches:
-      - main   # শুধু main branch এ push হলে trigger হবে
+on: [push]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -21,38 +18,25 @@ jobs:
         run: npm install
 
       - name: Run Tests
-        run: npm run check
+        run: npm run test -- --watch=false --browsers=ChromeHeadless
+        
 
-  deploy:
+  Deploy:
     needs: test
     runs-on: self-hosted
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Install Dependencies
-        run: npm install --production
+        run: npm install
 
       - name: Build Angular App
+        run: npm run build -- --configuration=production
+
+      - name: Deploy Angular App
         run: |
-          echo "🏗️ Building Angular App..."
-          rm -rf dist/angular-20-demo/browser
-          npm run build -- --configuration=production
-          echo "✅ Build Finished!"
-
-      - name: Deploy Angular with PM2
-        run: |
-          echo "🚀 Deploying Angular App..."
-          pm2 status
-
-          # Stop old process if exists
-          pm2 delete angular-app || true
-
-          # Serve the built Angular app on port 80
-          pm2 start "npx serve -s dist/angular-20-demo/browser -l 80" --name angular-app
-
-          # Save PM2 process list
+          npm install -g serve
+          pm2 delete "angular-app" || true
+          pm2 start "serve -s dist/angular-20-demo/browser -l 4200" --name="angular-app"
           pm2 save
-
-          echo "✅ Deployment finished!"
