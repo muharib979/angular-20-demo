@@ -1,4 +1,4 @@
-name: CICD Pipelines
+name: Angular CICD Pipelines
 
 on: [push]
 
@@ -18,30 +18,23 @@ jobs:
         run: npm install
 
       - name: Run Tests
-        run: npm run test -- --watch=false --browsers=ChromeHeadless || true
+        run: npm run test -- --watch=false --browsers=ChromeHeadless
         
 
-Deploy:
-  needs: test
-  runs-on: self-hosted
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+  Deploy:
+    needs: test
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Install Dependencies
-      run: npm install
+      - name: Install Dependencies
+        run: npm install
 
-    - name: Build Angular App
-      run: npm run build -- --configuration=production
+      - name: Build Angular App
+        run: npm run build -- --configuration=production
 
-    - name: Install PM2
-      run: |
-        npm install -g pm2
-        pm2 update
-
-    - name: Deploy Angular App
-      run: |
-        npm install -g serve
-        pm2 delete "angular-app" || true
-        pm2 start "serve -s dist/angular-20-demo/browser -l 4200" --name="angular-app"
-        pm2 save
+      - name: Install PM2
+        run: |
+          npm install -g pm2
+          pm2 update
