@@ -65,8 +65,7 @@ jobs:
 
       - name: Restart Angular Dev Server
         run: |
-             pm2 describe angular-app > /dev/null
-             if [ $? -eq 0 ]; then
+             if pm2 list | grep -q angular-app; then
              echo "♻️ Restarting Angular App..."
              pm2 restart angular-app --update-env
              else
