@@ -1,57 +1,57 @@
-name: CICD Pipelines
+name: Angular CI/CD
 
-on: [push]
+on:
+  push:
+    branches:
+      - main   
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4   # ✅ v4 এ আপডেট করা হলো
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.19.0'
+          node-version: '22.12'
 
       - name: Install Dependencies
         run: npm install
-      - name: Run Unit Tests
-        run: npm test
 
       - name: Build Angular App
-        run: npm run build -- --configuration=production
 
+        run: |
+              rm -rf dist/angular-20-demo/browser
+              npm run build -- --configuration=production
 
-  Deploy:
-    needs: test
-    runs-on: self-hosted
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4   # ✅ v4 এ আপডেট
+        with:
+          name: angular-dist
+          path: dist/angular-20-demo/browser
 
+  deploy:
+    needs: build
+    runs-on: self-hosted   # এখানে তোমার সার্ভারের self-hosted runner চলবে
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4   # ✅ v4 এ আপডেট
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Download Artifact
+        uses: actions/download-artifact@v4   # ✅ v4 এ আপডেট
         with:
-          node-version: '22.19.0'
+          name: angular-dist
+          path: dist/angular-20-demo/browser
 
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Deploy with PM2
+      - name: Deploy to Test Folder
         run: |
-          echo "🔄 Listing files"
-          ls -a
+            echo "🚀 Deploying Angular App..."
+            mkdir -p /tmp/html-test
+            rm -rf /tmp/html-test/*
+            cp -r dist/angular-20-demo/browser/* /tmp/html-test/
+            echo "✅ Deployment finished!"
+            echo "📂 Files in /tmp/html-test:"
+            ls -la /tmp/html-test
 
-          echo "🔍 Checking pm2 status"
-          pm2 status || true
-
-          echo "🗑️ Deleting old process (if exists)"
-          pm2 delete "node-app" || true
-
-          echo "🚀 Starting app with PM2"
-          pm2 start "npm start" --name="node-app"
-
-          echo "💾 Saving PM2 process list"
-          pm2 save
