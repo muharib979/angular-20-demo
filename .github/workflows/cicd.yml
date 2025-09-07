@@ -55,13 +55,12 @@ jobs:
 
       - name: Deploy to Test Folder
         run: |
-            echo "🚀 Deploying Angular App..."
-            mkdir -p /tmp/html-test
-            rm -rf /tmp/html-test/*
-            cp -r dist/angular-20-demo/browser/* /tmp/html-test/
-            echo "✅ Deployment finished!"
-            echo "📂 Files in /tmp/html-test:"
-            ls -la /tmp/html-test
+             echo "🚀 Deploying Angular app..."
+              sudo rm -rf /var/www/angular-app/*
+              sudo cp -r dist/angular-20-demo/browser/* /var/www/angular-app/
+              sudo chown -R www-data:www-data /var/www/angular-app
+              sudo chmod -R 755 /var/www/angular-app
+              echo "✅ Deployment finished!"
 
       - name: Restart Angular Dev Server
         run: |
